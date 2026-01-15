@@ -39,6 +39,29 @@
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js");
     }
-  </script>
+  if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+  .then(reg => console.log('Service Worker registriert'))
+  .catch(err => console.log('Service Worker Fehler:', err));
+}
+
+const startBtn = document.getElementById('start');
+const intervalSelect = document.getElementById('interval');
+
+startBtn.addEventListener('click', async () => {
+  if (Notification.permission !== 'granted') {
+    await Notification.requestPermission();
+  }
+
+  // Interval an Service Worker senden
+  const registration = await navigator.serviceWorker.ready;
+  registration.active.postMessage({
+    type: 'SET_INTERVAL',
+    interval: intervalSelect.value
+  });
+
+  alert(`Trink-Erinnerungen gestartet: alle ${intervalSelect.value} Minuten zwischen 08:00–21:00`);
+});
+
 </body>
 </html>
