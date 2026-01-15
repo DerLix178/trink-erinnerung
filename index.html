@@ -1,45 +1,4 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Trink-Erinnerung</title>
-
-  <link rel="manifest" href="manifest.json">
-
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      max-width: 400px;
-    }
-    button, select {
-      font-size: 1rem;
-      margin-top: 10px;
-      width: 100%;
-    }
-  </style>
-</head>
-
-<body>
-  <h1>Trink-Erinnerung</h1>
-
-  <label>
-    Intervall:
-    <select id="interval">
-      <option value="30">alle 30 Minuten</option>
-      <option value="45">alle 45 Minuten</option>
-      <option value="60">alle 60 Minuten</option>
-    </select>
-  </label>
-
-  <button id="start">Erinnerungen starten</button>
-
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
-    }
-  if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
   .then(reg => console.log('Service Worker registriert'))
   .catch(err => console.log('Service Worker Fehler:', err));
@@ -49,19 +8,26 @@ const startBtn = document.getElementById('start');
 const intervalSelect = document.getElementById('interval');
 
 startBtn.addEventListener('click', async () => {
+  // Notification-Berechtigung prüfen
   if (Notification.permission !== 'granted') {
-    await Notification.requestPermission();
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      alert('Benachrichtigungen müssen erlaubt werden, damit die Trink-Erinnerung funktioniert.');
+      return;
+    }
   }
 
-  // Interval an Service Worker senden
+  // Service Worker bereit
   const registration = await navigator.serviceWorker.ready;
-  registration.active.postMessage({
-    type: 'SET_INTERVAL',
-    interval: intervalSelect.value
-  });
 
-  alert(`Trink-Erinnerungen gestartet: alle ${intervalSelect.value} Minuten zwischen 08:00–21:00`);
+  // Interval an Service Worker senden
+  if (registration.active) {
+    registration.active.postMessage({
+      type: 'SET_INTERVAL',
+      interval: intervalSelect.value
+    });
+    alert(`Trink-Erinnerungen gestartet: alle ${intervalSelect.value} Minuten zwischen 08:00–21:00`);
+  } else {
+    alert('Service Worker noch nicht bereit. Seite bitte neu laden.');
+  }
 });
-
-</body>
-</html>
