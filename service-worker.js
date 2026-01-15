@@ -1,30 +1,27 @@
-let intervalMinutes = 45; // Standardintervall, wird vom Frontend gesetzt
+let intervalMinutes = 45; // Standardintervall
 
 // Nachricht vom Frontend empfangen
 self.addEventListener('message', event => {
   if (event.data.type === 'SET_INTERVAL') {
     intervalMinutes = parseInt(event.data.interval);
-    scheduleNext();
+    console.log('Intervall gesetzt:', intervalMinutes);
   }
 });
 
-// Funktion zum Planen der nächsten Benachrichtigung
+// Funktion zum Planen der nächsten Benachrichtigun
 function scheduleNext() {
-  setTimeout(async () => {
+  setTimeout(() => {
     const now = new Date();
     const hour = now.getHours();
 
     if (hour >= 8 && hour < 21) {
-      // Benachrichtigung anzeigen
       self.registration.showNotification('Zeit zu trinken', {
         body: 'Ein Glas Wasser trinken!',
-        icon: '/icon.png', // optional, kannst du später ein Icon setzen
         silent: false
       });
     }
 
-    // nächste Benachrichtigung planen
-    scheduleNext();
+    scheduleNext(); // nächstes Intervall
   }, intervalMinutes * 60 * 1000);
 }
 
@@ -36,4 +33,5 @@ self.addEventListener('install', event => {
 // Aktivierung
 self.addEventListener('activate', event => {
   clients.claim();
+  scheduleNext(); // sofort starten
 });
