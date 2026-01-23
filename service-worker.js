@@ -1,37 +1,36 @@
-let intervalMinutes = 45; // Standardintervall
+let intervalMinutes = 45;
+let running = false;
+let timeoutId = null;
 
-// Nachricht vom Frontend empfangen
 self.addEventListener('message', event => {
-  if (event.data.type === 'SET_INTERVAL') {
+  if (event.data.type === 'START') {
     intervalMinutes = parseInt(event.data.interval);
-    console.log('Intervall gesetzt:', intervalMinutes);
+    running = true;
+    scheduleNext();
+  }
+
+  if (event.data.type === 'STOP') {
+    running = false;
+    if (timeoutId) clearTimeout(timeoutId);
   }
 });
 
-// Funktion zum Planen der nächsten Benachrichtigun
 function scheduleNext() {
-  setTimeout(() => {
-    const now = new Date();
-    const hour = now.getHours();
+  if (!running) return;
+
+  timeoutId = setTimeout(() => {
+    const hour = new Date().getHours();
 
     if (hour >= 8 && hour < 21) {
       self.registration.showNotification('Zeit zu trinken', {
-        body: 'Ein Glas Wasser trinken!',
+        body: 'Ein Glas Wasser reicht.',
         silent: false
       });
     }
 
-    scheduleNext(); // nächstes Intervall
+    scheduleNext();
   }, intervalMinutes * 60 * 1000);
 }
 
-// Initialisierung beim Installieren
-self.addEventListener('install', event => {
-  self.skipWaiting();
-});
-
-// Aktivierung
-self.addEventListener('activate', event => {
-  clients.claim();
-  scheduleNext(); // sofort starten
-});
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', () => self.clients.claim());
