@@ -23,6 +23,8 @@
   </label>
 
   <button id="start">Erinnerung starten</button>
+  <button id="stop">Erinnerung stoppen</button>
+
 
   <script>
     (async () => {
@@ -40,6 +42,8 @@
 
       const startBtn = document.getElementById('start');
       const intervalSelect = document.getElementById('interval');
+      const stopBtn = document.getElementById('stop');
+
 
       startBtn.addEventListener('click', async () => {
         if (Notification.permission !== 'granted') {
@@ -47,6 +51,12 @@
           if (permission !== 'granted') {
             alert('Benachrichtigungen müssen erlaubt werden.');
             return;
+            stopBtn.addEventListener('click', async () => {
+  const reg = await navigator.serviceWorker.ready;
+  reg.active.postMessage({ type: 'STOP' });
+  alert('Trink-Erinnerung gestoppt');
+});
+
           }
         }
 
@@ -67,3 +77,4 @@
   </script>
 </body>
 </html>
+
