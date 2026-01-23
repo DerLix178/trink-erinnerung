@@ -1,8 +1,8 @@
 {
   "name": "Trink-Erinnerung",
   "short_name": "Trinken",
-  "start_url": "index.html",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff"
+  "background_color": "#0b0c10",
+  "theme_color": "#0b0c10"
 }
