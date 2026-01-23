@@ -3,20 +3,24 @@ let running = false;
 let timeoutId = null;
 
 self.addEventListener('message', event => {
-  if (event.data.type === 'START') {
-    intervalMinutes = parseInt(event.data.interval);
+  if (event.data?.type === 'START') {
+    intervalMinutes = parseInt(event.data.interval, 10) || 45;
     running = true;
     scheduleNext();
   }
 
-  if (event.data.type === 'STOP') {
+  if (event.data?.type === 'STOP') {
     running = false;
     if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = null;
   }
 });
 
 function scheduleNext() {
   if (!running) return;
+
+  // Bestehenden Timeout ersetzen, damit ein neues Intervall sofort greift
+  if (timeoutId) clearTimeout(timeoutId);
 
   timeoutId = setTimeout(() => {
     const hour = new Date().getHours();
