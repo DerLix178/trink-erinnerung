@@ -5,76 +5,415 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Trink-Erinnerung</title>
   <link rel="manifest" href="manifest.json" />
+
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 420px; }
-    button, select { font-size: 1rem; margin-top: 10px; width: 100%; padding: 10px; }
+    :root{
+      --bg:#0b0c10;
+      --card:#151820;
+      --muted:#9aa4b2;
+      --text:#e7eaf0;
+      --accent:#4f7cff;
+      --accent2:#2dd4bf;
+      --danger:#ff5c7a;
+      --border:rgba(255,255,255,.08);
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 20% 0%, rgba(79,124,255,.20), transparent 60%),
+                  radial-gradient(900px 700px at 90% 10%, rgba(45,212,191,.14), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+    .wrap{ width:100%; max-width:520px; }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 18px;
+      backdrop-filter: blur(8px);
+    }
+    h1{
+      font-size: 1.25rem;
+      margin: 0 0 10px 0;
+      letter-spacing: .2px;
+    }
+    .sub{
+      margin: 0 0 16px 0;
+      color: var(--muted);
+      font-size: .95rem;
+      line-height: 1.35;
+    }
+    .row{
+      display:flex;
+      gap:12px;
+      align-items:stretch;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .field{
+      flex:1;
+      min-width: 220px;
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    label{
+      display:block;
+      font-size: .85rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    select{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      outline: none;
+      font-size: 1rem;
+    }
+    select:focus{ border-color: rgba(79,124,255,.55); }
+    .buttons{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 12px;
+    }
+    button{
+      appearance:none;
+      border:0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      cursor:pointer;
+      color: var(--text);
+      flex: 1;
+      min-width: 170px;
+      transition: transform .06s ease, opacity .2s ease;
+    }
+    button:active{ transform: translateY(1px); }
+    .btn-start{ background: linear-gradient(135deg, var(--accent), rgba(79,124,255,.65)); }
+    .btn-stop{ background: linear-gradient(135deg, var(--danger), rgba(255,92,122,.65)); }
+    .btn-start:disabled, .btn-stop:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .status{
+      margin-top: 14px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+    }
+    .status .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 240px;
+    }
+    .dot{
+      width:10px; height:10px;
+      border-radius:50%;
+      background: rgba(154,164,178,.55);
+      box-shadow: 0 0 0 6px rgba(154,164,178,.08);
+      flex:0 0 auto;
+    }
+    .dot.on{
+      background: var(--accent2);
+      box-shadow: 0 0 0 6px rgba(45,212,191,.12);
+    }
+    .status-title{
+      font-weight: 650;
+      letter-spacing: .2px;
+    }
+    .status-sub{
+      display:block;
+      color: var(--muted);
+      font-size: .9rem;
+      margin-top: 2px;
+    }
+    .meta{
+      color: var(--muted);
+      font-size: .9rem;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.20);
+    }
+    .hint{
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.4;
+    }
+    .hint code{
+      background: rgba(0,0,0,.25);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 8px;
+      color: var(--text);
+    }
   </style>
 </head>
 <body>
-  <h1>Trink-Erinnerung</h1>
+  <div class="wrap">
+    <div class="card">
+      <h1>Trink-Erinnerung</h1>
+      <p class="sub">Erinnert dich zwischen <strong>08:00</strong> und <strong>21:00</strong> in deinem gewählten Intervall.</p>
 
-  <label>
-    Intervall:
-    <select id="interval">
-      <option value="30">alle 30 Minuten</option>
-      <option value="45" selected>alle 45 Minuten</option>
-      <option value="60">alle 60 Minuten</option>
-    </select>
-  </label>
+      <div class="row">
+        <div class="field">
+          <label for="interval">Intervall</label>
+          <select id="interval">
+            <option value="30">alle 30 Minuten</option>
+            <option value="45">alle 45 Minuten</option>
+            <option value="60">alle 60 Minuten</option>
+            <option value="90">alle 90 Minuten</option>
+          </select>
+        </div>
+      </div>
 
-  <button id="start">Erinnerung starten</button>
-  <button id="stop">Erinnerung stoppen</button>
+      <div class="buttons">
+        <button class="btn-start" id="start">Start</button>
+        <button class="btn-stop" id="stop">Stop</button>
+      </div>
 
+      <div class="status" aria-live="polite">
+        <div class="left">
+          <span class="dot" id="dot"></span>
+          <div>
+            <div class="status-title" id="statusTitle">Status: unbekannt</div>
+            <span class="status-sub" id="statusSub">—</span>
+          </div>
+        </div>
+
+        <div class="meta">
+          <span class="pill" title="Nur sichtbar, solange die App offen ist">
+            Nächste in: <strong id="countdown">—</strong>
+          </span>
+        </div>
+      </div>
+
+      <div class="hint">
+        Hinweis: Der Countdown ist nur eine Anzeige im Vordergrund. Für maximale Zuverlässigkeit: PWA über Homescreen öffnen und Akkuoptimierung für die App deaktivieren.
+      </div>
+    </div>
+  </div>
 
   <script>
-    (async () => {
+    const LS_KEY = 'drinkReminder.v1';
+    const state = {
+      running: false,
+      interval: 45,
+      nextAt: null
+    };
+
+    const startBtn = document.getElementById('start');
+    const stopBtn = document.getElementById('stop');
+    const intervalSelect = document.getElementById('interval');
+
+    const dot = document.getElementById('dot');
+    const statusTitle = document.getElementById('statusTitle');
+    const statusSub = document.getElementById('statusSub');
+    const countdownEl = document.getElementById('countdown');
+
+    let countdownTimer = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (typeof parsed.running === 'boolean') state.running = parsed.running;
+        if (Number.isFinite(parsed.interval)) state.interval = parsed.interval;
+        if (parsed.nextAt) state.nextAt = parsed.nextAt;
+      } catch (_) {}
+    }
+
+    function saveState() {
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+    }
+
+    function fmtTime(d) {
+      return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function setUIRunning(running) {
+      dot.classList.toggle('on', running);
+      statusTitle.textContent = running ? 'Status: läuft' : 'Status: gestoppt';
+      statusSub.textContent = running
+        ? `Intervall: ${state.interval} Min · aktiv 08:00–21:00`
+        : 'Keine Erinnerungen aktiv.';
+
+      startBtn.disabled = running;
+      stopBtn.disabled = !running;
+    }
+
+    function setNextAtFromNow() {
+      const now = Date.now();
+      state.nextAt = new Date(now + state.interval * 60 * 1000).toISOString();
+      saveState();
+    }
+
+    function startCountdown() {
+      if (countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        if (!state.running || !state.nextAt) {
+          countdownEl.textContent = '—';
+          return;
+        }
+        const diffMs = new Date(state.nextAt).getTime() - Date.now();
+        if (diffMs <= 0) {
+          // Anzeige „springt“ weiter, auch wenn Notification im Hintergrund ggf. später kommt.
+          setNextAtFromNow();
+        }
+        const s = Math.max(0, Math.floor(diffMs / 1000));
+        const mm = String(Math.floor(s / 60)).padStart(2, '0');
+        const ss = String(s % 60).padStart(2, '0');
+        countdownEl.textContent = `${mm}:${ss}`;
+      }, 250);
+    }
+
+    async function ensureServiceWorker() {
       if (!('serviceWorker' in navigator)) {
         alert('Service Worker werden nicht unterstützt.');
-        return;
+        throw new Error('no-sw');
       }
-
       try {
         await navigator.serviceWorker.register('./service-worker.js');
       } catch (e) {
         alert('Service Worker Registrierung fehlgeschlagen.');
+        throw e;
+      }
+      return navigator.serviceWorker.ready;
+    }
+
+    async function requestNotificationsIfNeeded() {
+      if (!('Notification' in window)) {
+        alert('Benachrichtigungen werden nicht unterstützt.');
+        throw new Error('no-notifications');
+      }
+      if (Notification.permission !== 'granted') {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          alert('Benachrichtigungen müssen erlaubt werden.');
+          throw new Error('permission-denied');
+        }
+      }
+    }
+
+    // --- Events ---
+    startBtn.addEventListener('click', async () => {
+      state.interval = parseInt(intervalSelect.value, 10);
+      state.running = true;
+      setNextAtFromNow();
+
+      await requestNotificationsIfNeeded();
+      const reg = await ensureServiceWorker();
+      if (!reg.active) {
+        alert('Service Worker noch nicht aktiv. Bitte Seite neu laden.');
+        state.running = false;
+        saveState();
+        setUIRunning(false);
         return;
       }
 
-      const startBtn = document.getElementById('start');
-      const intervalSelect = document.getElementById('interval');
-      const stopBtn = document.getElementById('stop');
+      reg.active.postMessage({ type: 'START', interval: state.interval });
+      setUIRunning(true);
+      startCountdown();
+    });
 
+    stopBtn.addEventListener('click', async () => {
+      state.running = false;
+      state.nextAt = null;
+      saveState();
 
-      startBtn.addEventListener('click', async () => {
-        if (Notification.permission !== 'granted') {
-          const permission = await Notification.requestPermission();
-          if (permission !== 'granted') {
-            alert('Benachrichtigungen müssen erlaubt werden.');
-            return;
-            stopBtn.addEventListener('click', async () => {
-  const reg = await navigator.serviceWorker.ready;
-  reg.active.postMessage({ type: 'STOP' });
-  alert('Trink-Erinnerung gestoppt');
-});
+      try {
+        const reg = await ensureServiceWorker();
+        if (reg.active) reg.active.postMessage({ type: 'STOP' });
+      } catch (_) {}
 
+      setUIRunning(false);
+      startCountdown();
+    });
+
+    intervalSelect.addEventListener('change', () => {
+      state.interval = parseInt(intervalSelect.value, 10);
+      saveState();
+
+      // Wenn läuft, planen wir den UI-Countdown neu und informieren den SW neu per START (damit Intervall greift)
+      if (state.running) {
+        setNextAtFromNow();
+        (async () => {
+          try {
+            await requestNotificationsIfNeeded();
+            const reg = await ensureServiceWorker();
+            if (reg.active) reg.active.postMessage({ type: 'START', interval: state.interval });
+          } catch (_) {}
+        })();
+        setUIRunning(true);
+      }
+    });
+
+    // --- Init ---
+    (async () => {
+      loadState();
+      intervalSelect.value = String(state.interval);
+
+      // UI initial setzen
+      setUIRunning(state.running);
+      startCountdown();
+
+      // Optional: Wenn zuletzt „running“, versuchen wir den SW wieder zu starten (ohne extra Klick)
+      // Nur wenn Notifications erlaubt sind, sonst lassen wir es „gestoppt“.
+      if (state.running) {
+        try {
+          if (Notification.permission === 'granted') {
+            const reg = await ensureServiceWorker();
+            if (reg.active) {
+              reg.active.postMessage({ type: 'START', interval: state.interval });
+              setUIRunning(true);
+              if (!state.nextAt) setNextAtFromNow();
+            } else {
+              // SW noch nicht aktiv -> UI bleibt auf running, aber Buttons passen.
+              // Beim nächsten Öffnen oder Reload wird er meist aktiv.
+            }
+          } else {
+            // Kein Permission -> wir zeigen „gestoppt“ (sauberer als „läuft“ ohne Berechtigung)
+            state.running = false;
+            state.nextAt = null;
+            saveState();
+            setUIRunning(false);
           }
-        }
-
-        const reg = await navigator.serviceWorker.ready;
-        if (!reg.active) {
-          alert('Service Worker noch nicht aktiv. Bitte Seite neu laden.');
-          return;
-        }
-
-        reg.active.postMessage({
-          type: 'SET_INTERVAL',
-          interval: intervalSelect.value
-        });
-
-        alert(`Gestartet: alle ${intervalSelect.value} Minuten (08–21 Uhr)`);
-      });
+        } catch (_) {}
+      }
     })();
   </script>
 </body>
 </html>
-
